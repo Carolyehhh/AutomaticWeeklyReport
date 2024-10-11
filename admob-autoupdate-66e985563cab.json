@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "admob-autoupdate",
+  "private_key_id": "66e985563cabec1ac9e8794aa364e1636fc76f13",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDMq1e38eM9Fj6g\nWjPxvT1ivcbOiLvH9rKxcGNk5s8eADSR6l/HigBfDdmIYHSeDoGaSE8KOgrVtybj\nt3vzlz7258zbmWbRPKQz30g7AXX7xdQAivyxcGSTZmZoMvbOXOIBXyy899z1jqMW\nDgYfPWvD0avoGqTvaj8WCCF9QNrtosu5w5+Cs49RY7kM2tTE7ykuir3btU335V7P\n5ygifqE14gcceEbOIEDyIibbEUJihcI/p4PuskCl9CP2aG+4xPWqlPBoORQomVHS\nK7NRt/fHu6jhIBRpDQYQrh+pztbT90e2DDQyKiXVpIxSZMYrYJ9kohpx+j75+Php\n3LkBaAr/AgMBAAECggEAHHYJRTWYZYLF47OXfJrVwfjlAAyInGaEc+NOlxX3oFLj\n/JSMjCl3IsDAytOq893NjQBYKXJn1k9ZU5pM3NNf+KLEXJdI8njN1r7KgxYRa5kX\ngZnSSPR5r/ux6vSHWKwW65zqEj8flXAn4qXBmS+H4Fu0XZry664pJq2rxoixyRC1\n8clbExqhO+BFHnLcWJiq+NtVOla9QxmHSflGDX33T/xW4ky3pngAnbKscBTpYBOO\n4aJUZnovV42b417OygMRT0/4FImPkTNBmLjt65EFynNxGj9WFu2idjnXOe1puXKE\nrsjKOEj7QUm2b/hL3F2i9pES3YdzDewhFdyzaTvsGQKBgQD8BlLVkpmnSSUm2SNp\n32ph5Oki0U5tOSXdHHZIjGUF9qrbw/y3rVBmHPUJgbQD09lcgU7hLoxl1gdKAIuZ\nAqiuAS5tx8Np7Bdhg/CB6I0pOSzL4tUeVFcl3jlRqeM8ju8T983QfzERDo53FIcK\n4NjRFP44dx4WQm+X6aAvKdI6mQKBgQDP5cxBIC+VH7MaebfCqmNu+Kqwv+Em1azx\nMNykA3uTlGUO7bHmpukFcJ6GZjSnvcvuC7qSPSzItyappVYreoVpmRmsLAktfpg/\nfhFu1IP4Gl7XcLEdpw3X4uV2NdXmD5kA4JlKCV9tOeRNAnZ9qBzxCfYeYo9mdnl9\n4i3PvxTJVwKBgQDADrWbaj/L+vLj+v+A1DBG7+I2lVj15WIUcXc2bD8kX0jvdxik\nhOBLIPAfUYd0j0IKu8P32LhHduZRH79CWINhLydJo70ogDGFL73d0fGZI6geq/sL\nROywv/vgXt37rVVGW0auB+/Fdtlcp/kNcjHoi937+9Ki1fgixXg72NwLqQKBgQCp\nDphLOU4YON/fHq2UyhPzkJjVBCOl/coVlANICGD8QIbxXc713jLNLqhqaEBXS1rC\n55y/AKojSfRRrdZlostMdKhQvrpz2Wca8nxgoMX0AhWvob8Vetwh+ytXNi4LWBG2\nie19LCQCYTpKeT87rXJjfBM84C72Rk9DU6KnNh5EHwKBgQCMCvz3RquNcr6Qa+b5\nkMVx3uE8cF5qQkbgZQNxte1VRwYnTdiibD6aqBIQa6BQQyXHgPayKOJ4SUZqbegM\nrJrHRH7Vmh8lY/0KBUQfJtzxk9J0CU+A0k5Eq14y054nuWpPWQ1pAuxqfbYzAJtl\nMcmwsYE0NSJT19BJTEiKYjNl6A==\n-----END PRIVATE KEY-----\n",
+  "client_email": "chipk-653@admob-autoupdate.iam.gserviceaccount.com",
+  "client_id": "108236629097059861194",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/chipk-653%40admob-autoupdate.iam.gserviceaccount.com"
+}
