@@ -81,37 +81,6 @@ def extract_data(sql_queries_list):
         return None
     return all_data
 
-
-# data_list =["""
-#     SELECT
-#         日期,
-#         --[週成交金額(億)],
-#         FORMAT(ROUND([週成交金額(億)] / 10000, 2), 'N2') + ' 兆' AS '週成交金額(兆)',
-#         --[上週成交金額(億)],
-#         CASE
-#             WHEN [上週成交金額(億)] = 0 THEN 'N/A'
-#             ELSE FORMAT(ROUND(([週成交金額(億)] - [上週成交金額(億)]) / [上週成交金額(億)] * 100, 1), 'N2') + '%'
-#         END AS '成長率'
-#     FROM (
-#         SELECT
-#             [Ddate] AS '日期',
-#             [週成交金額(億)],
-#             LAG([週成交金額(億)]) OVER (ORDER BY Ddate) AS '上週成交金額(億)'
-#         FROM [CMAPP].[dbo].[View_TWA00_Info]
-#         WHERE DATEPART(weekday, Ddate) = 2
-#     ) a
-#     ORDER BY 日期 DESC
-# """, 
-# """
-#     SELECT TOP (1000) [Yyear]
-#       ,[Ddate] as 日期
-#       ,[週成交金額(億)]
-
-#   FROM [CMAPP].[dbo].[View_TWA00_Info]
-#   where ddate='2024-06-17'
-# """]
-
-
 def filter_data(all_data, b1_value):
     """"
     目的: 過濾資料

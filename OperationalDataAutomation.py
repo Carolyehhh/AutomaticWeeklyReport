@@ -11,11 +11,6 @@ api_key_path = r'C:\Users\user1\Desktop\Cmoney\PythonProject\營運數據自動�
 sheet_url = 'https://docs.google.com/spreadsheets/d/1gSbdB-JhykNk88-6yOD9pB0pbC3QrhkvpXSmpP3Dse4/edit?gid=0#gid=0' #已改
 sheet_name = '用戶數據總覽(週)'
 
-# 認證並獲取工作表
-client = authenticate_google_sheets(api_key_path, scopes)
-sheet = get_sheet(client, sheet_url, sheet_name)
-cell = 'B1'
-
 # 營運數據查詢_SQL_query
 data_list =["""
     --成交金額
@@ -55,39 +50,15 @@ data_list =["""
 """
 ]
 
-# data_list =["""
-#     SELECT
-#         日期,
-#         --[週成交金額(億)],
-#         FORMAT(ROUND([週成交金額(億)] / 10000, 2), 'N2') + ' 兆' AS '週成交金額(兆)',
-#         --[上週成交金額(億)],
-#         CASE
-#             WHEN [上週成交金額(億)] = 0 THEN 'N/A'
-#             ELSE FORMAT(ROUND(([週成交金額(億)] - [上週成交金額(億)]) / [上週成交金額(億)] * 100, 1), 'N2') + '%'
-#         END AS '成長率'
-#     FROM (
-#         SELECT
-#             [Ddate] AS '日期',
-#             [週成交金額(億)],
-#             LAG([週成交金額(億)]) OVER (ORDER BY Ddate) AS '上週成交金額(億)'
-#         FROM [CMAPP].[dbo].[View_TWA00_Info]
-#         WHERE DATEPART(weekday, Ddate) = 2
-#     ) a
-#     ORDER BY 日期 DESC
-# """, 
-# """
-#     SELECT TOP (1000) [Yyear]
-#       ,[Ddate] as 日期
-#       ,[週成交金額(億)]
-
-#   FROM [CMAPP].[dbo].[View_TWA00_Info]
-#   where ddate='2024-06-17'
-# """]
+# 認證並獲取工作表
+client = authenticate_google_sheets(api_key_path, scopes)
+sheet = get_sheet(client, sheet_url, sheet_name)
+cell = 'B1'
 
 # 獲取日期單元格的值
-b1_value = get_cell_value(sheet, cell)
-rd = extract_data(data_list)
-filtered_data = filter_data(rd, b1_value)
+date_value = get_cell_value(sheet, cell)
+raw_data = extract_data(data_list)
+filtered_data = filter_data(raw_data, date_value)
 print(filtered_data)
 
 
@@ -95,21 +66,13 @@ print(filtered_data)
 
 #     try: # try, except 處理異常，發生異常時直接跳到 except，不執行完其餘部分      
 
-#         print("step1.stat")
-
-
-
 #         # 寫入工作表
 #         sheet = client.open_by_url(sheet_url).worksheet('用戶數據總覽(週)')
 #         write_to_sheet(sheet, data2)
 #         print("step2.success")
 
-
 #     except Exception as e:
 #         print(f"An error occured: {e}")
-
-#     finally:
-#         engine.dispose()  # 關閉 SQLAlchemy 連接
 
 # connect_and_update_sheets()
 
