@@ -4,8 +4,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 from sqlalchemy import create_engine
 
-# 日期資料轉換、資料寫入 Google Sheets、filter、sheet
-#filter_data有問題!!!
+# 日期資料轉換、資料寫入 Google Sheets、filter、sheet!
 
 def authenticate_google_sheets(api_key_path, scopes):
     """"
@@ -28,7 +27,7 @@ def get_sheet(client, sheet_url, sheet_name):
     param sheet_name: 工作表名稱
     return: 工作表對象
     """
-    sheet = client.open_by_url(sheet_url).worksheet('用戶數據總覽(週)')
+    sheet = client.open_by_url(sheet_url).worksheet(sheet_name)
     return sheet
 
 def get_cell_value(sheet, cell):
@@ -41,34 +40,122 @@ def get_cell_value(sheet, cell):
     """
     return sheet.acell(cell).value
 
+def Connect_to_MSSQL():
+    """
+    連接 SQL Server。
+    """
+    try: # try, except 處理異常，發生異常時直接跳到 except，不執行完其餘部分
+        print("GSQLAlchemy 連接 MSSQL 資料庫")
+        # 使用 SQLAlchemy 連接 MSSQL 資料庫
+        engine = create_engine('mssql+pymssql://carol_yeh:Cmoneywork1102@192.168.121.50/master') #已改
+        connection = engine.connect()
+        print("GSQLAlchemy 連接.success")  
+        return engine
+    except Exception as e:
+        print(f"An error occured: {e}")
+        return None
+    finally:
+        # engine.dispose() # 關閉 SQLAlchemy 連接
+        pass
+    
+
+def extract_data(sql_queries_list):
+    """
+    依照list順序，吃SQL資料。
+    
+    param sql_queries_list: 要吃的所有資料的SQL query
+    """
+    engine = Connect_to_MSSQL()
+    if engine is not None:
+        all_data = []
+        for query in sql_queries_list:
+            try:
+                read_data = pd.read_sql(query, engine)
+                all_data.append(read_data)
+            except Exception as e:
+                print(f"讀取數據時發生錯誤: {e}")
+        engine.dispose()
+        
+    else:
+        print("無法連接到資料庫")
+        return None
+    return all_data
 
 
-def format_date(data):
-    formatted_data = []
-    for row in data[1:]:
-        formatted_row = []
-        for item in row:
-            if isinstance(item, date):  # 檢查是否為日期類型
-                formatted_row.append(item.strftime('%Y-%m-%d'))  # 格式化日期為字串
-            else:
-                formatted_row.append(item)  # 非日期則保留為原始資料
-        formatted_data.append(formatted_row)
-    return formatted_data
+# data_list =["""
+#     SELECT
+#         日期,
+#         --[週成交金額(億)],
+#         FORMAT(ROUND([週成交金額(億)] / 10000, 2), 'N2') + ' 兆' AS '週成交金額(兆)',
+#         --[上週成交金額(億)],
+#         CASE
+#             WHEN [上週成交金額(億)] = 0 THEN 'N/A'
+#             ELSE FORMAT(ROUND(([週成交金額(億)] - [上週成交金額(億)]) / [上週成交金額(億)] * 100, 1), 'N2') + '%'
+#         END AS '成長率'
+#     FROM (
+#         SELECT
+#             [Ddate] AS '日期',
+#             [週成交金額(億)],
+#             LAG([週成交金額(億)]) OVER (ORDER BY Ddate) AS '上週成交金額(億)'
+#         FROM [CMAPP].[dbo].[View_TWA00_Info]
+#         WHERE DATEPART(weekday, Ddate) = 2
+#     ) a
+#     ORDER BY 日期 DESC
+# """, 
+# """
+#     SELECT TOP (1000) [Yyear]
+#       ,[Ddate] as 日期
+#       ,[週成交金額(億)]
+
+#   FROM [CMAPP].[dbo].[View_TWA00_Info]
+#   where ddate='2024-06-17'
+# """]
 
 
-def filter_data(data):
+def filter_data(all_data, b1_value):
     """"
     目的: 過濾資料
 
-    data (list of lists): 要過濾的資料
-    b1_value (float): 用於過濾的值
+    param data (list但內容物是DataFrame): 要過濾的資料
+    param b1_value (float): Google Sheet上輸入的篩選日期
 
-    return: 過濾後的資料 list
+    return: 過濾後的資料 DataFrame
     """
-    filtered_data = [row for row in data if row[0] == b1_value]
-    # print('filtered_data', filtered_data) # Debugging
-    return filtered_data
+    filtered_data_list = []
+    for content in all_data:
+        # print('ct', content)
+        content['日期'] = content['日期'].astype(str) # 日期格式為 str
+        # print(content['日期'][0], type(content['日期'][0])) # str
+        filtered_data = content.loc[content['日期']==b1_value]
+        filtered_data_list.append(filtered_data)
+    return filtered_data_list
 
+def write_to_sheet():
+    """
+    將資料寫入工作表
+    param 
+    """
+
+
+# # 操作測試
+# # 設定參數
+# scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"] # 認證範圍: Google Sheet, Google Drive
+# api_key_path = r'C:\Users\user1\Desktop\Cmoney\PythonProject\營運數據自動化\GoogleSheet\admob-autoupdate-66e985563cab.json' #已改
+# sheet_url = 'https://docs.google.com/spreadsheets/d/1gSbdB-JhykNk88-6yOD9pB0pbC3QrhkvpXSmpP3Dse4/edit?gid=0#gid=0' #已改
+# sheet_name = '用戶數據總覽(週)'
+
+# client = authenticate_google_sheets(api_key_path, scopes)
+# sheet = get_sheet(client, sheet_url, sheet_name)
+# cell = 'B1'
+# b1_value = get_cell_value(sheet, cell)
+# # print(b1_value)
+
+# rd = extract_data(data_list)
+# filtered_data = filter_data(rd, b1_value)
+# print(filtered_data)
+
+
+# ----------------------------------------------------------------------------------------------
 def write_to_sheet(sheet, data):
     sheet.batch_clear(['A2:B'])  # 清除現有的資料
     # 設定標題(縱向)
@@ -82,25 +169,4 @@ def write_to_sheet(sheet, data):
     # Filtered data
     filtered_data = filter_data(formatted_data)
 
-    # if filtered_data:
-    #     # 只提取成交金額
-    #     value = [row[1:] for row in filtered_data]
-    #     sheet.update('B3:C3', value)
-    #     print('Data written to sheet:', value)  # Debugging line)
-    # else:
-    #     print('No matching data found for B1 value:', b1_value)
 
-def main():
-    data = [
-        [1, 'A', 'B'],
-        [2, 'C', 'D'],
-        [1, 'E', 'F']
-    ]
-      
-
-    # 過濾資料
-    filtered_data = filter_data(data)
-    print(filtered_data)
-
-b1_value = 1  
-# main()
