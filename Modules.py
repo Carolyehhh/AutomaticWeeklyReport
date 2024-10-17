@@ -3,6 +3,7 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 from sqlalchemy import create_engine
+import re
 
 # 日期資料轉換、資料寫入 Google Sheets、filter、sheet!
 
@@ -27,18 +28,18 @@ def get_sheet(client, sheet_url, sheet_name):
     param sheet_name: 工作表名稱
     return: 工作表對象
     """
-    sheet = client.open_by_url(sheet_url).worksheet(sheet_name)
-    return sheet
+    worksheet = client.open_by_url(sheet_url).worksheet(sheet_name)
+    return worksheet
 
-def get_cell_value(sheet, cell):
+def get_cell_value(worksheet, cell):
     """
     獲取指定單元格的值。
     
-    param sheet: 工作表對象
+    param sheet: 工作表對象，gspread.models.Worksheet
     param cell: 單元格位置
     return: 單元格的值
     """
-    return sheet.acell(cell).value
+    return worksheet.acell(cell).value
 
 def Connect_to_MSSQL():
     """
@@ -83,13 +84,14 @@ def extract_data(sql_queries_list):
 
 def filter_data(all_data, b1_value):
     """"
-    目的: 過濾資料
+    過濾資料。
 
     param data (list但內容物是DataFrame): 要過濾的資料
     param b1_value (float): Google Sheet上輸入的篩選日期
 
     return: 過濾後的資料 DataFrame
     """
+
     filtered_data_list = []
     for content in all_data:
         # print('ct', content)
@@ -97,15 +99,76 @@ def filter_data(all_data, b1_value):
         # print(content['日期'][0], type(content['日期'][0])) # str
         filtered_data = content.loc[content['日期']==b1_value]
         filtered_data_list.append(filtered_data)
+
     return filtered_data_list
 
-def write_to_sheet():
+def clear_sheet(worksheet, start_cell, end_cell):
+    """
+    清除所選欄位的現有資料。
+    
+    param sheet: 工作表對象，gspread.models.Worksheet
+    param start_cell(str): 清除起始格
+    param end_cell(str): 清除結束格
+    """
+
+    range_notation = f"{start_cell}:{end_cell}"
+
+    return worksheet.batch_clear([range_notation])
+
+def hearders_to_sheet(worksheet, headers, start_cell):
+    """
+    ***縱向寫入***
+    將標頭寫入工作表的指定起始格。
+
+    param sheet: 工作表對象，gspread.models.Worksheet
+    param headers: 標頭列表
+    param start_cell: 起始單元格，例如 'A2'
+    """
+    # 將 start_cell 切割成數字及文字
+    match = re.match(r"([a-z]+)([0-9]+)", start_cell, re.I)
+    if match:
+        items = match.groups()
+    else:
+        items = None
+    # print(items[0], items[1]) 
+    # print(type(items[0]), type(items[1])) #str
+
+    # 取start_cell位置的數字
+    int_start_cell = int(items[1])
+
+    # 計算end_cell位置
+    int_end_cell = int_start_cell + len(headers) - 1
+
+    # end_cell 轉換成 str type
+    end_cell = items[0] + str(int_end_cell)
+    # print(end_cell)
+  
+    return worksheet.update(f"{start_cell}:{end_cell}", headers)
+
+
+def write_to_sheet(data, worksheet, cell):
     """
     將資料寫入工作表
-    param 
+
+    param data: 要寫入的資料
+    param worksheet: 指定資料更新的路徑
+    param cell: 填入資料的起始格
+
+    return 在Google Shhet上更新資料
     """
+    all_data = []
+    for element in data:
+        data_to_list = element.values.tolist()
+        all_data.extend(data_to_list)
+
+    # # 把資料轉成list才能寫入Google Sheet
+    # data_list = data.values.tolist()
+
+    return worksheet.update(cell, all_data)
 
 
+
+# ----------------------------------------------------------------------------------------------
 # # 操作測試
 # # 設定參數
 # scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"] # 認證範圍: Google Sheet, Google Drive
@@ -124,18 +187,7 @@ def write_to_sheet():
 # print(filtered_data)
 
 
-# ----------------------------------------------------------------------------------------------
-def write_to_sheet(sheet, data):
-    sheet.batch_clear(['A2:B'])  # 清除現有的資料
-    # 設定標題(縱向)
-    headers = [['日期'], ['成交金額(總計)'], ['交易天數'], ['成交金額(日均)'], ['活躍數'], ['活躍數(金融)'], ['造訪數'], ['註冊數']]
-    sheet.update('A2:A', headers)
 
-    # 資料處理(日期、其他資料)
-    formatted_data = format_date(data)
-    # print("Formatted Data:", formatted_data) # Debugging line OK
 
-    # Filtered data
-    filtered_data = filter_data(formatted_data)
 
 
