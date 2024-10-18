@@ -5,8 +5,88 @@ from google.oauth2.service_account import Credentials
 from sqlalchemy import create_engine
 import re
 
-# TO DO
-# 1. 貢獻度計算+排序
+"""
+目的：
+1. 連接Python到Google Sheet API
+2. 資料清理
+"""
+
+def extract_data(sql_queries_list):
+    """
+    依照list順序，吃SQL資料。
+    
+    param sql_queries_list: 要吃的所有資料的SQL query
+    return all_data: list，每個 elements 為 Dataframe
+    """
+    engine = Connect_to_MSSQL()
+    if engine is not None:
+        all_data = []
+        for query in sql_queries_list:
+            try:
+                read_data = pd.read_sql(query, engine)
+                all_data.append(read_data)
+            except Exception as e:
+                print(f"讀取數據時發生錯誤: {e}")
+        engine.dispose()
+        
+    else:
+        print("無法連接到資料庫")
+        return None
+    return all_data
+
+
+class GoogleSheetProcessor:
+    def __init__(self, client, config):
+        """
+        初始化類
+        param client: gspread client
+        param config: 包含所需參數的字典，包括:
+            - 'date_sheet_url': 獲取"當前日期"工作表的 URL
+            - 'date_sheet_name': 獲取"當前日期"工作表的名稱
+            - 'output_sheet_url': "寫入數據"工作表的 URL
+            - 'output_sheet_name': "寫入數據"工作表的名稱
+            - 'current_date_cell': 存儲"當前日期"的單元格位置
+            - 'raw_data_cell': 寫入數據的起始單元格位置
+            - 'data_list': 包含 SQL 查詢的列表
+            - 'clear_cell_range': 刪除資料的範圍
+        """ 
+        self.client = client
+        self.config = config
+        self.date_worksheet = self.get_sheet(config['date_sheet_url'], config['date_sheet_name'])
+        self.output_worksheet = self.get_sheet(config['output_sheet_url'], config['output_sheet_name'])
+    
+    def get_sheet(self, sheet_url, sheet_name):
+        """
+        獲取 Google Sheets 的工作表對象。
+        
+        param sheet_url: Google Sheets 的 URL
+        param sheet_name: 工作表名稱
+        return: 工作表對象
+        """
+        return self.client.open_by_url(sheet_url).worksheet(sheet_name)
+
+    def get_current_date(self):
+        """"
+        獲取當前日期
+        """
+        return self.date_worksheet.acell(self.config['current_date_cell']).value
+
+    def extract_and_filter_data(self, data):
+        """"
+        撈取並過濾數據
+        """
+        raw_data = extract_data(self.config['data_list'])
+        current_date = self.get_current_date()
+        return filter_data(raw_data, current_date)
+
+    def clear_and_update_sheet(self, data):
+        self.output_worksheet.batch_clear([self.config['clear_cell_range']])
+        write_to_sheet(data, self.output_worksheet, self.config['raw_data_cell'])
+
+    # 以下未完成，從raw_data_cell開始。
+
+
+#-------
 
 def process_data_and_update_sheet(client, config):
     """
@@ -91,27 +171,7 @@ def Connect_to_MSSQL():
         pass
     
 
-def extract_data(sql_queries_list):
-    """
-    依照list順序，吃SQL資料。
-    
-    param sql_queries_list: 要吃的所有資料的SQL query
-    """
-    engine = Connect_to_MSSQL()
-    if engine is not None:
-        all_data = []
-        for query in sql_queries_list:
-            try:
-                read_data = pd.read_sql(query, engine)
-                all_data.append(read_data)
-            except Exception as e:
-                print(f"讀取數據時發生錯誤: {e}")
-        engine.dispose()
-        
-    else:
-        print("無法連接到資料庫")
-        return None
-    return all_data
+
 
 def filter_data(all_data, b1_value):
     """"

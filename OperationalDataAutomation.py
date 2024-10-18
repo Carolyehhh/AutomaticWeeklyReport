@@ -4,7 +4,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 from sqlalchemy import create_engine
 from Modules import authenticate_google_sheets, get_sheet, get_cell_value, Connect_to_MSSQL, extract_data, filter_data, hearders_to_sheet, write_to_sheet, clear_sheet, process_data_and_update_sheet
-from data_SQLquery_list import data_list
+from data_SQLquery_list import Operation_data_list, User_data_list_week
 
 # 設定參數
 scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"] # 認證範圍: Google Sheet, Google Drive
@@ -18,7 +18,7 @@ config = {
     'output_sheet_name': 'raw_data',
     'current_date_cell': 'B2',
     'raw_data_cell': 'A2',
-    'data_list': data_list,
+    'data_list': Operation_data_list,
     'clear_cell_range': 'A2:D100'
 }
 
@@ -26,6 +26,8 @@ client = authenticate_google_sheets(api_key_path, scopes)
 process_data_and_update_sheet(client, config)
 
 # 用戶數據_產品貢獻度排序表格
+
+
 
 
 
@@ -57,7 +59,7 @@ process_data_and_update_sheet(client, config)
 # current_date = get_cell_value(worksheet, current_date_cell)
 
 # # 撈取SQL資料、只取相關日期的資料
-# raw_data = extract_data(data_list)
+# raw_data = extract_data(Operation_data_list)
 # current_filtered_data = filter_data(raw_data, current_date)
 # """ # print(filtered_data)
 # # print(type(filtered_data)) # list
@@ -67,7 +69,7 @@ process_data_and_update_sheet(client, config)
 # clear_sheet(worksheet2, "A2", "D100")
 # write_to_sheet(current_filtered_data, worksheet2, raw_data_cell)
 
-# process_data_and_update_sheet(client, sheet_url, sheet_name, sheet_url2, sheet_name2, api_key_path, scopes, current_date_cell, raw_data_cell, data_list, "A2", "D100")
+# process_data_and_update_sheet(client, sheet_url, sheet_name, sheet_url2, sheet_name2, api_key_path, scopes, current_date_cell, raw_data_cell, Operation_data_list, "A2", "D100")
 
 
 

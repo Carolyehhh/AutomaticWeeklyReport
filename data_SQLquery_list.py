@@ -1,5 +1,5 @@
 # 營運數據查詢_SQL_query
-data_list =["""
+Operation_data_list =["""
     --成交金額
     SELECT
         日期,
@@ -83,13 +83,34 @@ data_list =["""
 ]
 
 
-
-# 活躍數-分產品線
-# active_user_rank = 
-"""
-    select [日期], 產品名稱,[產品線], sum([總活躍用戶]) as active_usess
+# "週"用戶數據_data_list
+User_data_list_week = [
+    """
+    -- 活躍數-分產品名稱
+    select 
+        [日期], 產品名稱,[產品線], 
+        current_active, previous_active, (current_active-previous_active) as difference
+    from (
+    select 
+        [日期], 產品名稱,[產品線], sum([總活躍用戶]) as current_active, 
+        lag(sum([總活躍用戶])) over (partition by 產品線, 產品名稱 order by [日期]) as previous_active
     FROM [DataViews].[dbo].[週活躍用戶數(平台+付費+生命週期)]
     where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅')
     group by [日期], [產品線], 產品名稱
-"""
+    ) a
+    """,
+    """
+    -- 造訪數-分產品名稱
+    select [日期], 產品名稱,[產品線], current_appsession, previous_appsession, (current_appsession-previous_appsession) as difference
+    from (
+    select 
+        [日期], 產品名稱,[產品線], sum([總造訪次數]) as current_appsession, 
+        lag(sum([總造訪次數])) over (partition by 產品線, 產品名稱 order by [日期]) as previous_appsession
+    FROM [DataViews].[dbo].[週造訪次數 & 造訪天數]
+    where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅')
+    group by [日期], [產品線], 產品名稱
+    ) a
+    """
+]
 
+# 缺-- 註冊數-分產品名稱 SQL query
