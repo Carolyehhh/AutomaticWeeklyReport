@@ -84,8 +84,12 @@ data_list =["""
 
 
 
-""" # 活躍數-分產品線
-# select [日期], /*[產品線],*/ sum([總活躍用戶]) as active_usess
-# FROM [DataViews].[dbo].[週活躍用戶數(平台+付費+生命週期)]
-# where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅')
-# group by [日期]--, [產品線] """
+# 活躍數-分產品線
+# active_user_rank = 
+"""
+    select [日期], 產品名稱,[產品線], sum([總活躍用戶]) as active_usess
+    FROM [DataViews].[dbo].[週活躍用戶數(平台+付費+生命週期)]
+    where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅')
+    group by [日期], [產品線], 產品名稱
+"""
+

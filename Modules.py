@@ -5,7 +5,38 @@ from google.oauth2.service_account import Credentials
 from sqlalchemy import create_engine
 import re
 
-# 日期資料轉換、資料寫入 Google Sheets、filter、sheet!
+# TO DO
+# 1. 貢獻度計算+排序
+
+def process_data_and_update_sheet(client, config):
+    """
+    認證並獲取工作表、撈取並過濾SQL數據、清空並更新Google Sheet。
+
+    param client: gspread client
+    param config: 包含所需參數的字典，包括:
+        - 'date_sheet_url': 獲取"當前日期"工作表的 URL
+        - 'date_sheet_name': 獲取"當前日期"工作表的名稱
+        - 'output_sheet_url': "寫入數據"工作表的 URL
+        - 'output_sheet_name': "寫入數據"工作表的名稱
+        - 'current_date_cell': 存儲"當前日期"的單元格位置
+        - 'raw_data_cell': 寫入數據的起始單元格位置
+        - 'data_list': 包含 SQL 查詢的列表
+        - 'clear_cell_range': 刪除資料的範圍
+    """
+    # 認證+獲取工作表
+    date_worksheet = get_sheet(client, config['date_sheet_url'], config['date_sheet_name'])
+    output_worksheet = get_sheet(client, config['output_sheet_url'], config['output_sheet_name'])
+    
+    # 獲取日期單元的值_本週
+    current_date = get_cell_value(date_worksheet, config['current_date_cell'])
+    
+    # 撈取SQL資料、只取相關日期的資料
+    raw_data = extract_data(config['data_list'])
+    current_filtered_data = filter_data(raw_data, current_date)
+    
+    # 全刪寫資料至 Google Sheet
+    clear_sheet(output_worksheet, config['clear_cell_range'].split(':')[0], config['clear_cell_range'].split(':')[1])
+    write_to_sheet(current_filtered_data, output_worksheet, config['raw_data_cell'])
 
 def authenticate_google_sheets(api_key_path, scopes):
     """"
@@ -186,6 +217,43 @@ def write_to_sheet(data, worksheet, cell):
 # filtered_data = filter_data(rd, b1_value)
 # print(filtered_data)
 
+#---舊function
+# def process_data_and_update_sheet(client, date_sheet_url, date_sheet_name, output_sheet_url, output_sheet_name, api_key_path, scopes, current_date_cell, raw_data_cell, data_list, clear_cell_start, clear_cell_end):
+#     """
+#     認證並獲取工作表、撈取並過濾SQL數據、清空並更新Google Sheet。
+
+#     param client: gspread client
+#     param config: 包含所需參數的字典，包括:
+#         - 
+#         param date_sheet_url: 獲取"當前日期"工作表的 URL
+#         param date_sheet_name: 獲取"當前日期"工作表的名稱
+#         param output_sheet_url: "寫入數據"工作表的 URL
+#         param output_sheet_name: "寫入數據"工作表的名稱
+#         param api_key_path: API 密鑰路徑
+#         param scopes: Google Sheets API 認證範圍
+
+#         param current_date_cell: 存儲"當前日期"的單元格位置
+#         param raw_data_cell: 寫入數據的起始單元格位置
+#         param data_list: 包含 SQL 查詢的列表
+#         param clear_cell_start: 刪除資料的範圍_起始點
+#         param clear_cell_end: 刪除資料的範圍_結束點
+#     """
+
+#     # 認證+獲取工作表
+#     date_worksheet = get_sheet(client, date_sheet_url, date_sheet_name)
+#     output_worksheet = get_sheet(client, output_sheet_url, output_sheet_name)
+
+
+#     # 獲取日期單元的值_本週
+#     current_date = get_cell_value(date_worksheet, current_date_cell) 
+
+#     # 撈取SQL資料、只取相關日期的資料
+#     raw_data = extract_data(data_list)
+#     current_filtered_data = filter_data(raw_data, current_date) 
+
+#     # 全刪寫資料至 Google Sheet
+#     clear_sheet(output_worksheet, clear_cell_start, clear_cell_end)
+#     write_to_sheet(current_filtered_data, output_worksheet, raw_data_cell)
 
 
 
