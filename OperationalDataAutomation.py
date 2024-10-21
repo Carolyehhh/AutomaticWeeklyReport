@@ -3,7 +3,7 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 from sqlalchemy import create_engine
-from Modules import authenticate_google_sheets, get_sheet, get_cell_value, Connect_to_MSSQL, extract_data, filter_data, hearders_to_sheet, write_to_sheet, clear_sheet, process_data_and_update_sheet
+from Modules import extract_data, filter_data, write_to_sheet, GoogleSheetProcessor, authenticate_google_sheets
 from data_SQLquery_list import Operation_data_list, User_data_list_week
 
 # 設定參數
@@ -22,8 +22,11 @@ config = {
     'clear_cell_range': 'A2:D100'
 }
 
+# 用戶數據_概覽
 client = authenticate_google_sheets(api_key_path, scopes)
-process_data_and_update_sheet(client, config)
+processor = GoogleSheetProcessor(client, config)
+processor.run_all()
+
 
 # 用戶數據_產品貢獻度排序表格
 
