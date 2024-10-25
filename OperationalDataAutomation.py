@@ -4,6 +4,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 from sqlalchemy import create_engine
 from Modules import extract_data, filter_data, write_to_sheet, GoogleSheetProcessor, authenticate_google_sheets
+# from Calculation import clean_data
 from data_SQLquery_list import Operation_data_list, User_data_list_week
 
 # 設定參數
@@ -25,10 +26,10 @@ config = {
 # 用戶數據_概覽
 client = authenticate_google_sheets(api_key_path, scopes)
 processor = GoogleSheetProcessor(client, config)
-processor.run_all()
-
+processor.run_all_overview()
 
 # 用戶數據_產品貢獻度排序表格
+
 
 
 

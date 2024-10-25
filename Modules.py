@@ -165,15 +165,7 @@ class GoogleSheetProcessor:
         self.output_worksheet.batch_clear([self.config['clear_cell_range']])
         write_to_sheet(data, self.output_worksheet, self.config['raw_data_cell'])
 
-    # def process_data(self):
-    #     """
-    #     處理數據並更新工作表
-    #     """
-    #     filtered_data = self.extract_and_filter_data()
-    #     data_without_NaN = self.clean_data(filtered_data)
-    #     self.clear_and_update_sheet(data_without_NaN)
-
-    def run_all(self):
+    def run_all_overview(self):
         """
         執行所有方法
         """

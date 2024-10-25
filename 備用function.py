@@ -120,29 +120,29 @@ def hearders_to_sheet(worksheet, headers, start_cell):
     return worksheet.update(f"{start_cell}:{end_cell}", headers)
 
 
-# def write_to_sheet(data, worksheet, cell):
-#     """
-#     將資料寫入工作表
+def write_to_sheet(data, worksheet, cell):
+    """
+    將資料寫入工作表
 
-#     param data: 要寫入的資料
-#     param worksheet: 指定資料更新的路徑
-#     param cell: 填入資料的起始格
+    param data: 要寫入的資料
+    param worksheet: 指定資料更新的路徑
+    param cell: 填入資料的起始格
 
-#     return 在Google Shhet上更新資料
-#     """
-#     all_data = []
-#     for element in data:
-#         data_to_list = element.values.tolist()
-#         all_data.extend(data_to_list)
+    return 在Google Shhet上更新資料
+    """
+    all_data = []
+    for element in data:
+        data_to_list = element.values.tolist()
+        all_data.extend(data_to_list)
 
-#     # # 把資料轉成list才能寫入Google Sheet
-#     # data_list = data.values.tolist()
+    # # 把資料轉成list才能寫入Google Sheet
+    # data_list = data.values.tolist()
 
-#     return worksheet.update(cell, all_data)
+    return worksheet.update(cell, all_data)
 
 
 
-----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
 # 操作測試
 # 設定參數
 scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"] # 認證範圍: Google Sheet, Google Drive
