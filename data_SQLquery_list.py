@@ -110,6 +110,20 @@ User_data_list_week = [
     where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅')
     group by [日期], [產品線], 產品名稱
     ) a
+    """,
+    """
+    select *, (current_register - previous_register) as difference
+    from (
+        SELECT convert(date,[wdate], 23) as 日期
+            ,b.appname, b.prdlinename
+            ,sum([Register]) as current_register
+            ,lag(sum([Register])) over (partition by b.prdlinename, b.appname order by wdate) as previous_register
+        FROM [CMAPP].[dbo].[View_RegistrationRecord_Week] a
+        left join (select appid,appname, PrdLineName  from cmapp.dbo.View_TableauAppInfo) b
+        on a.appid=b.AppId
+        where b.PrdLineName in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '網紅', '其他')
+        group by wdate, b.AppName, b.PrdLineName
+        ) tmp
     """
 ]
 

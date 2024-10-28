@@ -32,10 +32,10 @@ class Contribution_Calculation:
                 previous_column = 'previous_active'
             elif 'previous_appsession' in k.columns:
                 previous_column = 'previous_appsession'
-            elif 'previous_registor' in k.columns:
-                previous_column = 'previous_registor'
+            elif 'previous_register' in k.columns:
+                previous_column = 'previous_register'
             else:
-                print("缺少 'previous_active' 或 'previous_appsession' 或 'previous_registor' 列")
+                print("缺少 'previous_active' 或 'previous_appsession' 或 'previous_register' 列")
                 continue   
 
             # 添加標題行
