@@ -41,7 +41,7 @@ Operation_data_list =["""
         sum([總活躍用戶]) as current_active_user, 
         lag(sum([總活躍用戶])) over (order by [日期]) as previous_active_user
     FROM [DataViews].[dbo].[週活躍用戶數(平台+付費+生命週期)]
-    where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅')
+    where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅', '其他')
     group by [日期]
     order by [日期] desc
 """,
@@ -64,7 +64,7 @@ Operation_data_list =["""
         ,sum([總造訪次數]) as total_session
         ,lag(sum([總造訪次數])) over (order by 日期) as previous_active_session
     FROM [DataViews].[dbo].[週造訪次數 & 造訪天數]
-    where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅')
+    where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅', '其他')
     group by [日期]
 """,
 """
@@ -77,7 +77,7 @@ Operation_data_list =["""
     FROM [CMAPP].[dbo].[View_RegistrationRecord_Week] r
     left join cmapp.dbo.View_TableauAppInfo a
     on r.appid=a.AppId
-    where a.PrdLineName in  ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '網紅')
+    where a.PrdLineName in  ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '網紅', '其他')
     group by wdate
 """
 ]
@@ -127,4 +127,27 @@ User_data_list_week = [
     """
 ]
 
-# 缺-- 註冊數-分產品名稱 SQL query
+# 週活躍數_分產品線
+Active_User_week = [
+""" 
+    --總活躍用戶(分產品線)
+    select da.日期, da.[月、日], da.產品線, da.current_active_user
+    from 
+    (
+        select distinct top 26 ([日期]) as [日期]
+        FROM [DataViews].[dbo].[週活躍用戶數(平台+付費+生命週期)]
+        order by [日期] desc
+    ) dt
+    left join 
+    (
+        select 
+            [日期], 
+            right(日期, 5)as '月、日',
+            產品線,
+            sum([總活躍用戶]) as current_active_user
+        FROM [DataViews].[dbo].[週活躍用戶數(平台+付費+生命週期)]
+        where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅', '其他')
+        group by [日期],產品線
+    ) da
+    on dt.日期=da.日期
+"""]

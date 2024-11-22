@@ -95,15 +95,91 @@ def write_to_sheet(data, worksheet, cell):
     return 在Google Shhet上更新資料
     """
     all_data = []
-    for element in data:
-        data_to_list = element.values.tolist()
-        all_data.extend(data_to_list)
+    if isinstance(data, list):
+        for element in data:
+            data_to_list = element.values.tolist()
+            all_data.extend(data_to_list)
+    elif isinstance(data, pd.DataFrame):
+        for index, row in data.iterrows():
+            data_to_list = row.values.tolist()
+            all_data.extend(data_to_list)
 
     # # 把資料轉成list才能寫入Google Sheet
     # data_list = data.values.tolist()
 
     return worksheet.update(cell, all_data)
 
+def transpose_data(data):
+    """
+    將資料轉置成以產品線為欄位名稱的格式
+
+    param data: 需要轉置的 DataFrame
+    """
+    data_list = []
+
+    # 檢查資料是否為 list，如果是 list，將其轉換為 DataFrame
+    if isinstance(data, list):
+        df = pd.concat(data, ignore_index=True)
+    else:
+        df = data
+
+    # 確認 DataFrame 的形狀為 2D
+    if df.ndim != 2:
+        raise ValueError("資料必須是 2D 的 DataFrame。")
+
+    # 使用 pivot 函數轉置資料
+    df_pivot = df.pivot(index=['日期', '月、日'], columns='產品線', values='current_active_user')
+
+    # 處理缺失值
+    df_pivot = df_pivot.fillna(0)
+
+    # 重置索引並將欄位名稱改為平行格式
+    df_pivot.reset_index(inplace=True)
+    df_pivot.columns.name = None
+
+    # 設定欄位順序
+    desired_order = ['日期','月、日','X實驗室','Money錢','網紅','發票','記帳','社群','其他','作者','同學會','大眾']
+    columns_order = desired_order + [col for col in df_pivot.columns if col not in desired_order]
+    df_pivot = df_pivot[columns_order]
+    
+    # 計算同一日期所有值的總計
+    df_pivot['總和'] = df_pivot.drop(columns=['日期', '月、日']).sum(axis=1)
+
+    # 計算差額
+    df_pivot['總和差額'] = df_pivot['總和'].diff()
+
+    # 定義分類函數
+    def classify_diff(diff):
+        if pd.isna(diff): #處理第一個值為NAN的情況
+            return None, None
+        elif diff > 0:
+            return diff, None
+        else:
+            return None, diff
+
+    df_pivot[['總和差額(正)', '總和差額(負)']] = df_pivot['總和差額'].apply(lambda x: pd.Series(classify_diff(x))).fillna(0)
+    # print(df_pivot)
+
+    def calculate_diff(df, columns):
+        for col in columns:
+            if col not in ['日期', '月、日', '總和', '總和差額(正)', '總和差額(負)', '總和差額']:
+                df[col + '差額']  = df[col].diff().fillna(0)
+        return df
+
+    df_pivot = calculate_diff(df_pivot, df_pivot.columns)
+    # df_pivot['X實驗室差額'] = df_pivot['X實驗室'].diff()
+    # df_pivot['Money錢差額'] = df_pivot['Money錢'].diff()
+    df_pivot = df_pivot.tail(25)
+    # print(df_pivot)
+
+    # JSON 不支持 datetime 格式，要轉成str
+    df_pivot['日期'] = df_pivot['日期'].astype(str)
+
+
+    # # 將df_pivot裝進list, element為DataFrame
+    data_list.append(df_pivot)
+
+    return data_list
 
 class GoogleSheetProcessor:
     def __init__(self, client, config):
