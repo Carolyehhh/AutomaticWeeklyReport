@@ -1,5 +1,6 @@
 from datetime import date
 import pandas as pd
+import numpy as np
 import gspread
 from google.oauth2.service_account import Credentials
 from sqlalchemy import create_engine
@@ -109,7 +110,7 @@ def write_to_sheet(data, worksheet, cell):
 
     return worksheet.update(cell, all_data)
 
-def transpose_data(data):
+def transpose_data_prdline(data):
     """
     將資料轉置成以產品線為欄位名稱的格式
 
@@ -147,6 +148,7 @@ def transpose_data(data):
 
     # 計算差額
     df_pivot['總和差額'] = df_pivot['總和'].diff()
+    # 計算金融事業群的差額
 
     # 定義分類函數
     def classify_diff(diff):
@@ -157,7 +159,7 @@ def transpose_data(data):
         else:
             return None, diff
 
-    df_pivot[['總和差額(正)', '總和差額(負)']] = df_pivot['總和差額'].apply(lambda x: pd.Series(classify_diff(x))).fillna(0)
+    df_pivot[['總和差額(正)', '總和差額(負)']] = df_pivot['總和差額'].apply(lambda x: pd.Series(classify_diff(x))).fillna("")
     # print(df_pivot)
 
     def calculate_diff(df, columns):
@@ -167,8 +169,6 @@ def transpose_data(data):
         return df
 
     df_pivot = calculate_diff(df_pivot, df_pivot.columns)
-    # df_pivot['X實驗室差額'] = df_pivot['X實驗室'].diff()
-    # df_pivot['Money錢差額'] = df_pivot['Money錢'].diff()
     df_pivot = df_pivot.tail(25)
     # print(df_pivot)
 
@@ -176,10 +176,38 @@ def transpose_data(data):
     df_pivot['日期'] = df_pivot['日期'].astype(str)
 
 
-    # # 將df_pivot裝進list, element為DataFrame
+    # 將df_pivot裝進list, element為DataFrame
     data_list.append(df_pivot)
 
     return data_list
+
+def transpose_data_lifecycle(data):
+    """
+    將資料轉置成以產品線為欄位名稱的格式
+    # 產品線:金融事業群
+
+    param data: Lists need to be transposed, with DataFrame elements
+    """
+    # 篩選指定產品線
+    target_prdlinename = ['Money錢', '大眾', '同學會', '作者']
+    data = data[0][data[0]['產品線'].isin(target_prdlinename)]
+    data = data[['日期', '月、日', 'recall_uesr', 'retained_user', 'new_user']]
+
+    # 轉換為 '日期' 和 '月、日' 作為索引
+    data.set_index(['日期', '月、日'], inplace=True)
+
+    # 將數值欄位根據 '日期' 進行加總
+    data_aggregated = data.groupby(['日期', '月、日']).sum().reset_index()  
+    data_aggregated[['日期', '月、日']] = data_aggregated[['日期', '月、日']].astype(str)
+    # print(data_aggregated) # DataFrame
+
+    # Insert DataFrame into a list
+    data_list = []
+    data_list.append(data_aggregated)
+
+    return data_list
+
+
 
 class GoogleSheetProcessor:
     def __init__(self, client, config):

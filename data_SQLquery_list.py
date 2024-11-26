@@ -127,11 +127,11 @@ User_data_list_week = [
     """
 ]
 
-# 週活躍數_分產品線
+# 週活躍數_產品線_生命週期
 Active_User_week = [
 """ 
     --總活躍用戶(分產品線)
-    select da.日期, da.[月、日], da.產品線, da.current_active_user
+    select da.日期, da.[月、日], da.產品線, da.current_active_user, da.new_user,da.retained_user, da.recall_uesr
     from 
     (
         select distinct top 26 ([日期]) as [日期]
@@ -144,10 +144,20 @@ Active_User_week = [
             [日期], 
             right(日期, 5)as '月、日',
             產品線,
-            sum([總活躍用戶]) as current_active_user
+            sum([總活躍用戶]) as current_active_user,
+			sum(新用戶) as new_user,
+			sum(留存用戶) as retained_user,
+			sum(召回用戶) as recall_uesr
         FROM [DataViews].[dbo].[週活躍用戶數(平台+付費+生命週期)]
         where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅', '其他')
         group by [日期],產品線
     ) da
     on dt.日期=da.日期
 """]
+
+print(type(Active_User_week)) #list
+
+# # 週活躍數_生命週期
+# Active_User_week_life = """
+
+# """
