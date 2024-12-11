@@ -110,11 +110,12 @@ def write_to_sheet(data, worksheet, cell):
 
     return worksheet.update(cell, all_data)
 
-def transpose_data_prdline(data):
+def transpose_data_prdline(data, value_column = 'current_value'):
     """
     將資料轉置成以產品線為欄位名稱的格式
 
     param data: 需要轉置的 DataFrame
+    param value_column: 指定需要轉置的欄位名稱
     """
     data_list = []
 
@@ -129,7 +130,7 @@ def transpose_data_prdline(data):
         raise ValueError("資料必須是 2D 的 DataFrame。")
 
     # 使用 pivot 函數轉置資料
-    df_pivot = df.pivot(index=['日期', '月、日'], columns='產品線', values='current_active_user')
+    df_pivot = df.pivot(index=['日期', '月、日'], columns='產品線', values=value_column)
 
     # 處理缺失值
     df_pivot = df_pivot.fillna(0)

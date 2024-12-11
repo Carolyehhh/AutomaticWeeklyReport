@@ -155,9 +155,84 @@ Active_User_week = [
     on dt.日期=da.日期
 """]
 
-print(type(Active_User_week)) #list
+# 月活躍數_產品線_生命週期
+Active_User_month = [
+""" 
+    --總活躍用戶(分產品線)
+    select da.日期, da.[月、日], da.產品線, da.current_active_user, da.new_user,da.retained_user, da.recall_uesr
+    from 
+    (
+        select distinct top 26 ([日期]) as [日期]
+        FROM [DataViews].[dbo].[月活躍用戶數(平台+付費+生命週期)]
+        order by [日期] desc
+    ) dt
+    left join 
+    (
+        select 
+            [日期], 
+            right(日期, 5)as '月、日',
+            產品線,
+            sum([總活躍用戶]) as current_active_user,
+			sum(新用戶) as new_user,
+			sum(留存用戶) as retained_user,
+			sum(召回用戶) as recall_uesr
+        FROM [DataViews].[dbo].[月活躍用戶數(平台+付費+生命週期)]
+        where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅', '其他')
+        group by [日期],產品線
+    ) da
+    on dt.日期=da.日期
+"""]
 
-# # 週活躍數_生命週期
-# Active_User_week_life = """
+# print(type(Active_User_week)) #list
 
-# """
+# 週造訪數-產品線(全)
+APP_Session_week = ["""
+    select da.日期, da.[月、日], da.[產品線], da.current_appsession
+    from (
+        select distinct top 26 日期
+        from [DataViews].[dbo].[週造訪次數 & 造訪天數]
+        where 日期 < (select max(日期) from [DataViews].[dbo].[週造訪次數 & 造訪天數])
+        order by 日期 desc
+    ) dt
+    left join 
+    (
+        select  
+            [日期] 
+            ,right(日期, 5) as '月、日'
+            ,[產品線]	 
+            ,sum([總造訪次數]) as current_appsession
+
+        FROM [DataViews].[dbo].[週造訪次數 & 造訪天數]
+        where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅', '其他')
+        group by 日期 ,產品線
+    ) da
+    on dt.日期=da.日期
+"""]
+
+# 週註冊數
+Reg_week = ["""
+    select da.日期, da.[月、日], da.產品線, da.current_reg 
+    from  (
+        select distinct top 26 (convert(varchar(10), cast(wdate as date), 120)) as 日期
+        from [CMAPP].[dbo].[View_RegistrationRecord_Week]
+        where wdate < (select max(wdate) from [CMAPP].[dbo].[View_RegistrationRecord_Week])
+        order by (convert(varchar(10), cast(wdate as date), 120)) desc
+    ) dt
+    left join
+    (
+        SELECT 
+            convert(varchar(10), cast(a.wdate as date), 120) as 日期, 
+            right(convert(varchar(10), cast(a.wdate as date), 120), 5) as '月、日',
+            sum(a.register) as current_reg, 
+            case when b.Appname='超慢跑節拍器' then 'X實驗室' 
+            else b.PrdLineName end as 產品線, b.AppId, b.AppName
+        FROM [CMAPP].[dbo].[View_RegistrationRecord_Week] as a
+    left join (
+        select * from [CMAPP].[dbo].[View_TableauAppInfo] 
+    ) as b
+    on a.appid = b.appid
+    where b.PrdLineName in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '網紅', '其他')
+    group by a.wdate, b.prdlinename, b.AppId, b.AppName
+    ) da
+    on dt.日期=da.日期
+"""]
