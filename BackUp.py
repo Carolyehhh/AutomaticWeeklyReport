@@ -29,5 +29,13 @@ write_to_sheet(current_filtered_data, worksheet2, raw_data_cell)
 
 process_data_and_update_sheet(client, sheet_url, sheet_name, sheet_url2, sheet_name2, api_key_path, scopes, current_date_cell, raw_data_cell, Operation_data_list, "A2", "D100")
 
-
+# 找出重複項: list轉df
+if isinstance(Reg_data_25week, list):
+    df = pd.concat(Reg_data_25week, ignore_index=True)
+else:
+    df = Reg_data_25week
+duplicates = df[df.duplicated(subset=['日期', '月、日','產品線'], keep=False)]
+print("Duplicate Items")
+print(duplicates)
+print(Reg_data_25week)
 

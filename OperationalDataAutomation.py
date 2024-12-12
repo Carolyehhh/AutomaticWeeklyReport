@@ -202,11 +202,11 @@ processor_Reg_week = GoogleSheetProcessor(client, config_reg_week_prd)
 
 # 撈取 25 週的週活躍資料 + 差額
 Reg_data_25week = extract_data(Reg_week)
-RegData_week = transpose_data_prdline(Reg_data_25week, 'current_reg')
-print(RegData_week)
 
-# # 全刪寫
-# processor_Reg_week = GoogleSheetProcessor(client, config_reg_week_prd)
-# processor_Reg_week.clear_and_update_sheet(RegData_week)
+RegData_week = transpose_data_prdline(Reg_data_25week, 'current_reg')
+
+# 全刪寫
+processor_Reg_week = GoogleSheetProcessor(client, config_reg_week_prd)
+processor_Reg_week.clear_and_update_sheet(RegData_week)
 
 

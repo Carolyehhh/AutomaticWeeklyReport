@@ -211,7 +211,7 @@ APP_Session_week = ["""
 
 # 週註冊數
 Reg_week = ["""
-    select da.日期, da.[月、日], da.產品線, da.current_reg 
+    select da.日期, da.[月、日], da.產品線, sum(da.current_reg ) as current_reg
     from  (
         select distinct top 26 (convert(varchar(10), cast(wdate as date), 120)) as 日期
         from [CMAPP].[dbo].[View_RegistrationRecord_Week]
@@ -231,8 +231,9 @@ Reg_week = ["""
         select * from [CMAPP].[dbo].[View_TableauAppInfo] 
     ) as b
     on a.appid = b.appid
-    where b.PrdLineName in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '網紅', '其他')
+    where b.PrdLineName in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅', '其他')
     group by a.wdate, b.prdlinename, b.AppId, b.AppName
     ) da
     on dt.日期=da.日期
+    group by da.日期, da.[月、日], da.產品線
 """]
