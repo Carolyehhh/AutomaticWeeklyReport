@@ -1,81 +1,9 @@
 from Modules import extract_data, filter_data, write_to_sheet, GoogleSheetProcessor, authenticate_google_sheets, transpose_data_prdline, transpose_data_lifecycle
 from data_SQLquery_list import Operation_data_list, User_data_list_week, Active_User_week, Active_User_month, APP_Session_week, Reg_week
+from config import create_config, get_overview_config, get_contribution_config
+from data_processing import process_data, process_overview, process_contribution
 from Calculation import Contribution_Calculation
 
-# 認證範圍與 API 金鑰
-scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"] # 認證範圍: Google Sheet, Google Drive
-api_key_path = r'C:\Users\user1\Desktop\Cmoney\PythonProject\營運數據自動化\GoogleSheet\admob-autoupdate-66e985563cab.json' #已改
-client = authenticate_google_sheets(api_key_path, scopes)
-
-# 共用的設定模板
-def create_config(data_list, output_sheet_name, output_gid, input_cell, clear_cell_range, mode="default",transpose_key=None):
-    # 將其預設為 None，允許該參數在不需要時被省略，避免必須提供不必要的值。
-    return {
-    'date_sheet_url': 'https://docs.google.com/spreadsheets/d/1gSbdB-JhykNk88-6yOD9pB0pbC3QrhkvpXSmpP3Dse4/edit?gid=0#gid=0',
-    'date_sheet_name': '用戶數據總覽(週)',
-    'output_sheet_url': 'https://docs.google.com/spreadsheets/d/1gSbdB-JhykNk88-6yOD9pB0pbC3QrhkvpXSmpP3Dse4/edit?gid={output_gid}#gid={output_gid}',
-    'output_sheet_name': output_sheet_name,
-    'current_date_cell': 'B2',
-    'raw_data_cell': input_cell,
-    'data_list': data_list,
-    'clear_cell_range': clear_cell_range,
-    'mode':mode,
-    'transpose_key':transpose_key
-}
-
-# 為用戶數據總覽生成專屬的配置
-def get_overview_config():
-    return create_config(
-        data_list = Operation_data_list,
-        output_sheet_name = 'raw_data',
-        output_gid = 1388457908,
-        clear_cell_range = 'A2:D100',
-        input_cell = 'A2'
-    )
- 
-# 為用戶數據貢獻度生成專屬的配置
-def get_contribution_config():
-    return create_config(
-        data_list = User_data_list_week,
-        output_sheet_name = '用戶數據_raw_data',
-        output_gid = 2062253493,
-        clear_cell_range = 'A3:G100',
-        input_cell = 'A2'
-    )
-
-# 依產品線分類
-def process_data(config): 
-    # 撈取資料
-    raw_data = extract_data(config['data_list'])
-
-    if config['mode'] == 'prdline':
-        processed_data = transpose_data_prdline(raw_data, config['transpose_key'])
-    elif config['mode'] == 'lifecycle':
-        processed_data = transpose_data_lifecycle(raw_data)
-    else:
-        raise ValueError("Invalid mode. Use 'prdline' or 'lifecycle'.")
-
-    # 寫入 Google Sheet
-    processor = GoogleSheetProcessor(client, config)
-    processor.clear_and_update_sheet(processed_data)
-
-def process_overview():
-    config = get_overview_config()
-    processor = GoogleSheetProcessor(client, config)
-    processor.run_all_overview()
-
-def process_contribution():
-    config = get_contribution_config()
-    processor = GoogleSheetProcessor(client, config)
-    filtered_data = processor.extract_and_filter_data()
-    cleaned_data = processor.clean_data(filtered_data)
-
-    # 計算貢獻度排名
-    contribution_calculator = Contribution_Calculation(cleaned_data)
-    ranked_data = contribution_calculator.Contrbution_Ranking()
-
-    # 寫入 Google Sheet
-    processor.clear_and_update_sheet(ranked_data)
 
 def main():
     # 所有配置清單

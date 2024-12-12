@@ -237,3 +237,5 @@ Reg_week = ["""
     on dt.日期=da.日期
     group by da.日期, da.[月、日], da.產品線
 """]
+
+# 週訂單數
