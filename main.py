@@ -8,7 +8,8 @@ api_key_path = r'C:\Users\user1\Desktop\Cmoney\PythonProject\營運數據自動�
 client = authenticate_google_sheets(api_key_path, scopes)
 
 # 共用的設定模板
-def create_config(data_list, output_sheet_name, output_gid, input_cell, clear_cell_range):
+def create_config(data_list, output_sheet_name, output_gid, input_cell, clear_cell_range, mode="default",transpose_key=None):
+    # 將其預設為 None，允許該參數在不需要時被省略，避免必須提供不必要的值。
     return {
     'date_sheet_url': 'https://docs.google.com/spreadsheets/d/1gSbdB-JhykNk88-6yOD9pB0pbC3QrhkvpXSmpP3Dse4/edit?gid=0#gid=0',
     'date_sheet_name': '用戶數據總覽(週)',
@@ -17,7 +18,9 @@ def create_config(data_list, output_sheet_name, output_gid, input_cell, clear_ce
     'current_date_cell': 'B2',
     'raw_data_cell': input_cell,
     'data_list': data_list,
-    'clear_cell_range': clear_cell_range
+    'clear_cell_range': clear_cell_range,
+    'mode':mode,
+    'transpose_key':transpose_key
 }
 
 # 為用戶數據總覽生成專屬的配置
@@ -41,13 +44,13 @@ def get_contribution_config():
     )
 
 # 依產品線分類
-def process_data(config, transpose_key=None, mode='prdline'): # 將其預設為 None，允許該參數在不需要時被省略，避免必須提供不必要的值。
+def process_data(config): 
     # 撈取資料
     raw_data = extract_data(config['data_list'])
 
-    if mode == 'prdline':
-        processed_data = transpose_data_prdline(raw_data, transpose_key)
-    elif mode == 'lifecycle':
+    if config['mode'] == 'prdline':
+        processed_data = transpose_data_prdline(raw_data, config['transpose_key'])
+    elif config['mode'] == 'lifecycle':
         processed_data = transpose_data_lifecycle(raw_data)
     else:
         raise ValueError("Invalid mode. Use 'prdline' or 'lifecycle'.")
@@ -56,11 +59,13 @@ def process_data(config, transpose_key=None, mode='prdline'): # 將其預設為 
     processor = GoogleSheetProcessor(client, config)
     processor.clear_and_update_sheet(processed_data)
 
-def process_overview_data(config):
+def process_overview():
+    config = get_overview_config()
     processor = GoogleSheetProcessor(client, config)
     processor.run_all_overview()
 
-def process_contribution_data(config):
+def process_contribution():
+    config = get_contribution_config()
     processor = GoogleSheetProcessor(client, config)
     filtered_data = processor.extract_and_filter_data()
     cleaned_data = processor.clean_data(filtered_data)
@@ -86,14 +91,17 @@ def main():
 
     # 依次處理每個配置, list  of dictionaries
     for conf in configs:
-        config = create_config(conf["data_list"], conf["output_sheet_name"], conf["output_gid"], conf["input_cell"], conf["clear_cell_range"])
-        process_data(config, conf.get("transpose_key"), conf["mode"]) # 使用 get 方法則能在鍵缺失時返回 None（或其他指定的預設值），這樣程式不會崩潰。
+        config = create_config(
+            # 使用 get 方法則能在鍵缺失時返回 None（或其他指定的預設值），這樣程式不會崩潰。
+            conf["data_list"], conf["output_sheet_name"], conf["output_gid"], conf["input_cell"], conf["clear_cell_range"], conf["mode"], conf.get("transpose_key")
+            )
+        process_data(config) 
 
     # 用戶數據總覽
-    process_overview_data(get_overview_config())
+    process_overview()
 
     # 用戶數據貢獻度
-    process_contribution_data(get_contribution_config())
+    process_contribution()
 
 if __name__=="__main__":
     main()
