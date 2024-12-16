@@ -1,4 +1,4 @@
-from Modules import extract_data, filter_data, write_to_sheet, GoogleSheetProcessor, authenticate_google_sheets, transpose_data_prdline, transpose_data_lifecycle
+from Modules import extract_data, filter_data, write_to_sheet, GoogleSheetProcessor, authenticate_google_sheets, transpose_data_prdline, transpose_data_lifecycle_finance
 from data_SQLquery_list import Operation_data_list, User_data_list_week, Active_User_week, Active_User_month, APP_Session_week, Reg_week
 from config import create_config, get_overview_config, get_contribution_config
 from data_processing import process_data, process_overview, process_contribution
@@ -13,8 +13,8 @@ def main():
         {"data_list":Reg_week, "output_sheet_name":'週註冊數_raw_data', "output_gid":34342962, "transpose_key":'current_reg', "input_cell":'A3', "clear_cell_range":'A3:Z1000', "mode":'prdline'},
         {"data_list":Active_User_week, "output_sheet_name":'週活躍數_raw_data', "output_gid":2100891440, "transpose_key":'current_active_user', "input_cell":'A3', "clear_cell_range":'A3:Z1000', "mode":'prdline'},
         # 生命週期
-        {"data_list":Active_User_week, "output_sheet_name":'週活躍數_raw_data', "output_gid":2100891440, "transpose_key":None, "input_cell":'AF3', "clear_cell_range":'AF3:AJ1000', "mode":'lifecycle'},
-        {"data_list":Active_User_month, "output_sheet_name":'月活躍數_raw_data', "output_gid":439610448, "transpose_key":None, "input_cell":'AF3', "clear_cell_range":'AF3:AJ1000', "mode":'lifecycle'}
+        {"data_list":Active_User_week, "output_sheet_name":'週活躍數_raw_data', "output_gid":2100891440, "transpose_key":None, "input_cell":'AF3', "clear_cell_range":'AF3:AJ1000', "mode":'lifecycle_finance'},
+        {"data_list":Active_User_month, "output_sheet_name":'月活躍數_raw_data', "output_gid":439610448, "transpose_key":None, "input_cell":'AF3', "clear_cell_range":'AF3:AJ1000', "mode":'lifecycle_finance'}
     ]
 
     # 依次處理每個配置, list  of dictionaries

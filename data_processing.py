@@ -1,4 +1,4 @@
-from Modules import extract_data, filter_data, write_to_sheet, GoogleSheetProcessor, authenticate_google_sheets, transpose_data_prdline, transpose_data_lifecycle
+from Modules import extract_data, filter_data, write_to_sheet, GoogleSheetProcessor, authenticate_google_sheets, transpose_data_prdline, transpose_data_lifecycle_finance
 from config import create_config, get_overview_config, get_contribution_config
 from Calculation import Contribution_Calculation
 
@@ -14,10 +14,10 @@ def process_data(config):
 
     if config['mode'] == 'prdline':
         processed_data = transpose_data_prdline(raw_data, config['transpose_key'])
-    elif config['mode'] == 'lifecycle':
-        processed_data = transpose_data_lifecycle(raw_data)
+    elif config['mode'] == 'lifecycle_finance':
+        processed_data = transpose_data_lifecycle_finance(raw_data)
     else:
-        raise ValueError("Invalid mode. Use 'prdline' or 'lifecycle'.")
+        raise ValueError("Invalid mode. Use 'prdline' or 'lifecycle_finance'.")
 
     # 寫入 Google Sheet
     processor = GoogleSheetProcessor(client, config)
