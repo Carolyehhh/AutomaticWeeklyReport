@@ -6,6 +6,8 @@ from google.oauth2.service_account import Credentials
 from sqlalchemy import create_engine
 import re
 
+from data_SQLquery_list import APP_Session_week
+
 """
 目的：
 1. 連接Python到Google Sheet API
@@ -139,8 +141,10 @@ def transpose_data_prdline(data, value_column = 'current_value'):
     df_pivot.reset_index(inplace=True)
     df_pivot.columns.name = None
 
+    # print("df_pivot")
+
     # 設定欄位順序
-    desired_order = ['日期','月、日','X實驗室','Money錢','網紅','發票','記帳','社群','其他','作者','同學會','大眾']
+    desired_order = ['日期','月、日','X實驗室','Money錢','發票','記帳','社群','其他', 'FinLab','作者','同學會','大眾']
     columns_order = desired_order + [col for col in df_pivot.columns if col not in desired_order]
     df_pivot = df_pivot[columns_order]
     
@@ -182,6 +186,13 @@ def transpose_data_prdline(data, value_column = 'current_value'):
 
     return data_list
 
+
+# a = extract_data(APP_Session_week)
+# # if isinstance(a, list):
+# #     print(type(a[0])) # 可以擷取資料
+# # # b = transpose_data_prdline(a, 'current_appsession')
+# print(sum(sum([a[0]['產品線']=='網紅'])))
+
 def transpose_data_lifecycle_finance(data):
     """
     將資料轉置成以產品線為欄位名稱的格式
@@ -207,32 +218,6 @@ def transpose_data_lifecycle_finance(data):
     data_list.append(data_aggregated)
 
     return data_list
-
-# def transpose_data_lifecycle_all(data):
-#     """
-#     將資料轉置成以產品線為欄位名稱的格式
-#     # 產品線:全產品線
-
-#     param data: Lists need to be transposed, with DataFrame elements
-#     """
-#     # 篩選指定產品線
-#     target_prdlinename = ['Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅', '其他']
-#     data = data[0][data[0]['產品線'].isin(target_prdlinename)]
-#     data = data[['日期', '月、日', 'recall_uesr', 'retained_user', 'new_user']]
-
-#     # 轉換為 '日期' 和 '月、日' 作為索引
-#     data.set_index(['日期', '月、日'], inplace=True)
-
-#     # 將數值欄位根據 '日期' 進行加總
-#     data_aggregated = data.groupby(['日期', '月、日']).sum().reset_index()  
-#     data_aggregated[['日期', '月、日']] = data_aggregated[['日期', '月、日']].astype(str)
-#     # print(data_aggregated) # DataFrame
-
-#     # Insert DataFrame into a list
-#     data_list = []
-#     data_list.append(data_aggregated)
-
-#     return data_list
 
 class GoogleSheetProcessor:
     def __init__(self, client, config):

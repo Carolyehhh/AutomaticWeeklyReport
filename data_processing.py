@@ -22,6 +22,7 @@ def process_data(config):
     # 寫入 Google Sheet
     processor = GoogleSheetProcessor(client, config)
     processor.clear_and_update_sheet(processed_data)
+    # print("Raw data columns:", raw_data.columns)
 
 # 用戶數據表格(全)
 def process_overview():

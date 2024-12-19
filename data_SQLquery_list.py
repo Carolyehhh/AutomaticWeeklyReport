@@ -41,7 +41,7 @@ Operation_data_list =["""
         sum([總活躍用戶]) as current_active_user, 
         lag(sum([總活躍用戶])) over (order by [日期]) as previous_active_user
     FROM [DataViews].[dbo].[週活躍用戶數(平台+付費+生命週期)]
-    where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅', '其他')
+    where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', 'FinLab', '其他')
     group by [日期]
     order by [日期] desc
 """,
@@ -64,7 +64,7 @@ Operation_data_list =["""
         ,sum([總造訪次數]) as total_session
         ,lag(sum([總造訪次數])) over (order by 日期) as previous_active_session
     FROM [DataViews].[dbo].[週造訪次數 & 造訪天數]
-    where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅', '其他')
+    where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', 'FinLab', '其他')
     group by [日期]
 """,
 """
@@ -77,7 +77,7 @@ Operation_data_list =["""
     FROM [CMAPP].[dbo].[View_RegistrationRecord_Week] r
     left join cmapp.dbo.View_TableauAppInfo a
     on r.appid=a.AppId
-    where a.PrdLineName in  ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '網紅', '其他')
+    where a.PrdLineName in  ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', 'FinLab', '其他')
     group by wdate
 """
 ]
@@ -95,7 +95,7 @@ User_data_list_week = [
         [日期], 產品名稱,[產品線], sum([總活躍用戶]) as current_active, 
         lag(sum([總活躍用戶])) over (partition by 產品線, 產品名稱 order by [日期]) as previous_active
     FROM [DataViews].[dbo].[週活躍用戶數(平台+付費+生命週期)]
-    where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅')
+    where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', 'FinLab', '其他')
     group by [日期], [產品線], 產品名稱
     ) a
     """,
@@ -107,7 +107,7 @@ User_data_list_week = [
         [日期], 產品名稱,[產品線], sum([總造訪次數]) as current_appsession, 
         lag(sum([總造訪次數])) over (partition by 產品線, 產品名稱 order by [日期]) as previous_appsession
     FROM [DataViews].[dbo].[週造訪次數 & 造訪天數]
-    where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅')
+    where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', 'FinLab', '其他')
     group by [日期], [產品線], 產品名稱
     ) a
     """,
@@ -121,7 +121,7 @@ User_data_list_week = [
         FROM [CMAPP].[dbo].[View_RegistrationRecord_Week] a
         left join (select appid,appname, PrdLineName  from cmapp.dbo.View_TableauAppInfo) b
         on a.appid=b.AppId
-        where b.PrdLineName in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '網紅', '其他')
+        where b.PrdLineName in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', 'FinLab', '其他')
         group by wdate, b.AppName, b.PrdLineName
         ) tmp
     """
@@ -149,7 +149,7 @@ Active_User_week = [
 			sum(留存用戶) as retained_user,
 			sum(召回用戶) as recall_uesr
         FROM [DataViews].[dbo].[週活躍用戶數(平台+付費+生命週期)]
-        where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅', '其他')
+        where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', 'FinLab', '其他')
         group by [日期],產品線
     ) da
     on dt.日期=da.日期
@@ -177,7 +177,7 @@ Active_User_month = [
 			sum(留存用戶) as retained_user,
 			sum(召回用戶) as recall_uesr
         FROM [DataViews].[dbo].[月活躍用戶數(平台+付費+生命週期)]
-        where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅', '其他')
+        where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', 'FinLab', '其他')
         group by [日期],產品線
     ) da
     on dt.日期=da.日期
@@ -203,7 +203,7 @@ APP_Session_week = ["""
             ,sum([總造訪次數]) as current_appsession
 
         FROM [DataViews].[dbo].[週造訪次數 & 造訪天數]
-        where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅', '其他')
+        where [產品線] in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', 'FinLab', '其他')
         group by 日期 ,產品線
     ) da
     on dt.日期=da.日期
@@ -231,11 +231,18 @@ Reg_week = ["""
         select * from [CMAPP].[dbo].[View_TableauAppInfo] 
     ) as b
     on a.appid = b.appid
-    where b.PrdLineName in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', '網紅', '其他')
+    where b.PrdLineName in ('Money錢', 'X實驗室', '大眾', '同學會', '作者', '社群', '記帳', '發票', 'FinLab', '其他')
     group by a.wdate, b.prdlinename, b.AppId, b.AppName
     ) da
     on dt.日期=da.日期
     group by da.日期, da.[月、日], da.產品線
 """]
 
-# 週訂單數
+# # 週訂單數
+# test_SQL = [
+#     """
+#     select ddate, Counts as current_counts
+#     from cmapp.dbo.view_SubStaticGroupNoItem
+#     order by ddate desc
+#     """
+# ]

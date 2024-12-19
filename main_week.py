@@ -13,8 +13,7 @@ def main():
         {"data_list":Reg_week, "output_sheet_name":'週註冊數_raw_data', "output_gid":34342962, "transpose_key":'current_reg', "input_cell":'A3', "clear_cell_range":'A3:Z1000', "mode":'prdline'},
         {"data_list":Active_User_week, "output_sheet_name":'週活躍數_raw_data', "output_gid":2100891440, "transpose_key":'current_active_user', "input_cell":'A3', "clear_cell_range":'A3:Z1000', "mode":'prdline'},
         # 生命週期
-        {"data_list":Active_User_week, "output_sheet_name":'週活躍數_raw_data', "output_gid":2100891440, "transpose_key":None, "input_cell":'AF3', "clear_cell_range":'AF3:AJ1000', "mode":'lifecycle_finance'},
-        {"data_list":Active_User_month, "output_sheet_name":'月活躍數_raw_data', "output_gid":439610448, "transpose_key":None, "input_cell":'AF3', "clear_cell_range":'AF3:AJ1000', "mode":'lifecycle_finance'}
+        {"data_list":Active_User_week, "output_sheet_name":'週活躍數_raw_data', "output_gid":2100891440, "transpose_key":None, "input_cell":'AF3', "clear_cell_range":'AF3:AJ1000', "mode":'lifecycle_finance'}
     ]
 
     # 依次處理每個配置, list  of dictionaries
@@ -30,6 +29,7 @@ def main():
 
     # 用戶數據貢獻度
     process_contribution()
+
 
 if __name__=="__main__":
     main()
